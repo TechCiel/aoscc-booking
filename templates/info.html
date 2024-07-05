@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block main %}
+
+{% set name = u[0] %}
+{% set arrive = int(u[4]) %}
+{% set depart = int(u[5]) %}
+{% set days = depart - arrive %}
+{% set food = (u[6] == '是') %}
+{% set type = u[7] %}
+{% set price = {'大床房':140, '标准间（拼）':70, '家庭房（拼）':53}.get(type) %}
+{% set p_room = price * days %}
+{% set p_food = 10 * days * food %}
+{% set p_all = p_room + p_food %}
+{% set code = u[8] %}
+{% set paid = int(u[9]) %}
+
+<p>{{ name }}，您好！欢迎参加 AOSCC 2024 。</p>
+
+<p>您已预订如家酒店（长春高新吉林大学店），入住信息如下，<strong>请在 7 月 10 日中午 12:00 前确认入住并支付房费，逾期将不保证提供房间</strong>。</p>
+
+<ul>
+    <li>日期：{{ days }} 晚，7 月 {{ arrive }} 日入住，7 月 {{ depart }} 日离店</li>
+    <li>房费：{{ type }}，{{ price }} 元每晚，共 {{ p_room }} 元</li>
+{% if food %}
+    <li>早餐：每天 07:00-09:30 提供，共 {{ p_food }} 元</li>
+{% else %}
+    <li>早餐：不需要</li>
+{% endif %}
+{% if paid < 0 %}
+    <li><b>注意！</b>您有部分日期未拼房成功，将收取全价房费，差价在结算栏调整</li>
+{% endif %}
+</ul>
+
+<p>请仔细核对以上信息是否准确，如需修改请联系会务志愿者。</p>
+
+<hr>
+
+<h2>入住注意事项</h2>
+
+<ol>
+    <li>酒店退房时间为中午 12:00 ，延迟半小时内不额外收费，超出半小时加收半日房费</li>
+    <li>如需开具发票，入住期间和退房时可前往前台，按实际付款金额开具</li>
+    <li>注意消防安全，入住后请熟悉消防设施位置及疏散路线，请勿在酒店内吸烟</li>
+    <li>未成年人入住须向前台提供监护人姓名、住址、联系方式等信息，并由前台现场电话确认</li>
+</ol>
+
+{% if '（拼）' in type %}
+<h2>拼房注意事项</h2>
+
+<ol>
+    <li>如同住人未及时确认入住，我们将尽可能重新组合，若房间入住人数减少，入住前须补缴房费差额</li>
+    <li>拼房各方确认入住后，如一方取消，须征得其他同住人同意，由同住人承担取消期间全部房费</li>
+    <li>入住人单方面要求续住或延迟退房的，产生的额外费用独自承担</li>
+    <li>如与同住人发生纠纷或其他情况，请及时联系志愿者负责人</li>
+</ol>
+{% endif %}
+
+<h2>取消和退款政策</h2>
+
+<ol>
+    <li>入住确认截止时间为 7 月 10 日中午 12:00 ，在此之前可自由取消，全额退款</li>
+    <li>截止时间过后整间取消任何一晚预订，退款金额需视其他与会者取消情况确定</li>
+    <li>任何一晚取消超出五间，酒店将扣收超出部分房费，从预缴房费中按比例分摊扣除后，剩余部分退款</li>
+    <li>入住后提前退房产生的退款，已开具纸质发票的需要交回前台</li>
+    <li>如有取消可能，建议使用支付宝付款以便操作退款</li>
+</ol>
+
+<hr>
+
+<h2>确认入住并支付房费</h2>
+
+<p>您可以通过支付宝（推荐）或微信扫码支付，<strong>一旦支付房费，即表示您确认将在本通知载明的期间入住，并同意以上各项条款</strong>。</p>
+
+{% if paid < p_all %}
+
+{% if not paid %}
+<p>您总共应支付 {{ p_all }} 元，<strong>付款时请点击下方【添加备注】附言【{{ code }}】</strong>。</p>
+{% else %}
+<p>您已经支付 {{ paid }} 元，还应支付 {{ p_all - paid }} 元，<strong>付款时请添加转账附言【{{ code }}】</strong>。</p>
+{% endif %}
+
+<p><strong>务必注意！</strong>如未添加转账附言，请立即联系会务志愿者，若造成预订失败或其他损失，责任由您自行承担。</p>
+
+<button class="pure-button pure-button-primary" onclick="showQRCode()">同意以上条款，确认入住，显示付款方式</button>
+
+<hr>
+
+<div id="qrcode" style="display: none">
+    <img src="{{ url_for('static', filename='alipay.jpg') }}" alt="支付宝收款码">
+    <img src="{{ url_for('static', filename='wechat.jpg') }}" alt="微信支付收款码">
+</div>
+
+{% else %}
+
+<p>您已完成入住确认，我们已收到您支付的款项，如需变更住宿请联系会务志愿者。</p>
+
+{% endif %}
+
+{% endblock %}
